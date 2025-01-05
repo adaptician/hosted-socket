@@ -2,8 +2,16 @@
 import { WebSocketServer } from 'ws'; // For WebSocket Server
 
 const rabbitmqUrl = 'amqp://localhost';
-const exchangeName = 'cannon-test';
+const exchangeName = 'universe';
 const websocketPort = 8080;
+
+// TODO:T in order to avoid the hard-coded exchange and make deployment far more powerful,
+// you could expose endpoints to start and stop the server.
+// The start endpoint could accept the exchange name as a parameter.
+// This way, a socket server could be spun up per simulation node, 
+// but it will wait for the monocle to stage
+// for this to work as a proper test, the worldId will come from panorama - 
+// we need to be able to capture this from monocle so that we can view and existing world. 
 
 async function startWebSocketServer() {
     try {
@@ -13,9 +21,13 @@ async function startWebSocketServer() {
         const channel = await connection.createChannel();
 
         // Step 2: Assert the exchange and bind a queue
-        await channel.assertExchange(exchangeName, 'fanout', { durable: true });
-        const { queue } = await channel.assertQueue('cannonq', { exclusive: true });
-        await channel.bindQueue(queue, exchangeName, '');
+        await channel.assertExchange(exchangeName, 'topic', { durable: true });
+
+        // Create a temporary queue to bind to the exchange.
+        const { queue } = await channel.assertQueue('socket', { exclusive: true });
+        
+        // Listen to everything for this websocket server.
+        await channel.bindQueue(queue, exchangeName, '#');
 
         console.log(`Queue "${queue}" bound to exchange "${exchangeName}"`);
 
