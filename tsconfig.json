@@ -1,0 +1,13 @@
+﻿{
+  "compilerOptions": {
+    "target": "ES2022",                // Target modern JavaScript
+    "module": "CommonJS",              // Use CommonJS for Node.js compatibility
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "./dist"                 // Output compiled files to "dist" directory
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}
